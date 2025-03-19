@@ -15,21 +15,33 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Cache Wapiti Installation
+        id: cache-wapiti
+        uses: actions/cache@v4
         with:
-          python-version: "3.10"
+          path: /usr/local/bin/wapiti
+          key: wapiti-cache-v1
 
-      - name: Install Wapiti
+      - name: Install Wapiti (if not cached)
+        if: steps.cache-wapiti.outputs.cache-hit != 'true'
         run: |
           sudo apt update
           sudo apt install -y wapiti
 
-      - name: Install Dependencies
+      - name: Run Wapiti Scan
+        run: wapiti -u http://testphp.vulnweb.com -f json -o report.json
+
+      - name: Upload Scan Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: wapiti-report
+          path: report.json
+
+      - name: Install Python Dependencies
         run: pip install requests
 
-      - name: Run Wapiti Scan
+      - name: Send Report to Telegram
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python scan.py  # Ensure this matches your Python file name
+        run: python scan.py
