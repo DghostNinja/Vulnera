@@ -3,7 +3,7 @@ import glob
 import requests
 
 def run_wapiti(target_url):
-    # Run Wapiti scan
+    """Runs Wapiti scan on the target URL and returns the report file path."""
     os.system(f"wapiti -u {target_url} -o report.html")
 
     # Find the actual report file inside the 'report.html/' directory
@@ -15,7 +15,7 @@ def run_wapiti(target_url):
     return latest_report  # Return the path to the report file
 
 def send_to_telegram(file_path, chat_id, token):
-    # Send report as a file
+    """Sends the scan report to Telegram as a file."""
     url = f"https://api.telegram.org/bot{token}/sendDocument"
     
     with open(file_path, "rb") as file:
@@ -25,18 +25,41 @@ def send_to_telegram(file_path, chat_id, token):
     
     return response.json()
 
+def run_multi_target_scan(targets_file):
+    """Reads multiple targets from a file and runs Wapiti scans on them."""
+    if not os.path.exists(targets_file):
+        raise FileNotFoundError("Targets file not found!")
+
+    with open(targets_file, "r") as f:
+        targets = [line.strip() for line in f.readlines() if line.strip()]
+
+    if not targets:
+        raise ValueError("No valid targets found in the file.")
+
+    report_files = []
+    for url in targets:
+        print(f"Scanning: {url}")
+        try:
+            report_file = run_wapiti(url)
+            report_files.append(report_file)
+        except Exception as e:
+            print(f"Error scanning {url}: {e}")
+
+    return report_files
+
 if __name__ == "__main__":
-    target_url = "http://testphp.vulnweb.com"  # Replace with your target URL
-    telegram_token = os.getenv("TELEGRAM_TOKEN")  # Get token from env
-    telegram_chat_id = os.getenv("TELEGRAM_CHAT_ID")  # Get chat ID from env
+    targets_file = "targets.txt"  # File containing multiple URLs to scan
+    telegram_token = os.getenv("TELEGRAM_TOKEN")
+    telegram_chat_id = os.getenv("TELEGRAM_CHAT_ID")
 
     try:
-        # Run Wapiti scan and get the report file path
-        report_file = run_wapiti(target_url)
+        # Run scans for multiple targets
+        report_files = run_multi_target_scan(targets_file)
 
-        # Send the report as a file to Telegram
-        response = send_to_telegram(report_file, telegram_chat_id, telegram_token)
-        print(response)  # Debugging
+        # Send each report to Telegram
+        for report_file in report_files:
+            response = send_to_telegram(report_file, telegram_chat_id, telegram_token)
+            print(f"Sent report for {report_file}: {response}")
 
     except Exception as e:
         print(f"Error: {e}")
