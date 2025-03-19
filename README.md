@@ -21,7 +21,7 @@ You can run **Vulnera** on your local machine, in a CI/CD pipeline, or within a 
 ```sh
 # Clone the repository
 git clone https://github.com/DghostNinja/Vulnera.git
-cd Vulnra
+cd Vulnera 
 ```
 
 ### **2️⃣ Install Dependencies (For Manual Execution)**
@@ -50,7 +50,7 @@ python scan.py targets.txt
 ## 🐳 Running Vulnera with Docker
 ### **1️⃣ Build the Docker Image**
 ```sh
-docker build -t vulnra .
+docker build -t vulnera .
 ```
 
 ### **2️⃣ Run a Single Target Scan**
@@ -58,7 +58,7 @@ docker build -t vulnra .
 docker run --rm \
   -e TELEGRAM_TOKEN="your_telegram_bot_token" \
   -e TELEGRAM_CHAT_ID="your_chat_id" \
-  vulnra
+  vulnera 
 ```
 
 ### **3️⃣ Run a Multi-Target Scan**
@@ -67,7 +67,7 @@ docker run --rm \
   -v "$(pwd)/targets.txt:/app/targets.txt" \
   -e TELEGRAM_TOKEN="your_telegram_bot_token" \
   -e TELEGRAM_CHAT_ID="your_chat_id" \
-  vulnra
+  vulnera 
 ```
 
 ---
