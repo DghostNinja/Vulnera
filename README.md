@@ -141,5 +141,5 @@ Contributions are welcome! 🚀 **PRs & Issues** are encouraged.
 
 ---
 ## ✨ Author
-Developed by **[iPsalmy]** (@DghostNinja) for **startups & security-conscious developers**. 🛡️
+Developed by **iPsalmy** (@DghostNinja) for **startups & security-conscious developers**. 🛡️
 
