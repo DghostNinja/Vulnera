@@ -1,46 +1,43 @@
 import os
+import glob
 import requests
-import subprocess
-import json
-
-# Load secrets from environment variables
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 def run_wapiti(target_url):
-    """Run Wapiti scan and return results."""
-    output_file = "report.json"
-    
-    # Run Wapiti scan in JSON format
-    cmd = ["wapiti", "-u", target_url, "-f", "json", "-o", output_file]
-    subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # Run Wapiti scan
+    os.system(f"wapiti -u {target_url} -o report.html")
 
-    # Read JSON report
-    with open(output_file, "r") as f:
-        return json.load(f)
+    # Find the actual report file inside the 'report.html/' directory
+    report_files = glob.glob("report.html/*.html")  # List all HTML reports
+    if not report_files:
+        raise FileNotFoundError("No report file found in report.html/")
 
-def send_to_telegram(message):
-    """Send message to Telegram."""
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    payload = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
+    latest_report = max(report_files, key=os.path.getctime)  # Get the newest report file
+
+    # Read the latest Wapiti report
+    with open(latest_report, "r") as f:
+        return f.read()
+
+def send_to_telegram(message, chat_id, token):
+    # Send message to Telegram
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": message
+    }
     response = requests.post(url, json=payload)
     return response.json()
 
 if __name__ == "__main__":
-    target_url = "http://testphp.vulnweb.com"  # Replace with your target
+    target_url = "http://testphp.vulnweb.com"  # Replace with your target URL
+    telegram_token = "YOUR_TELEGRAM_BOT_TOKEN"
+    telegram_chat_id = "YOUR_TELEGRAM_CHAT_ID"
 
-    if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
-        print("Error: TELEGRAM_TOKEN or TELEGRAM_CHAT_ID is not set.")
-        exit(1)
+    try:
+        # Run Wapiti scan and get the report content
+        report = run_wapiti(target_url)
 
-    report = run_wapiti(target_url)
+        # Send report to Telegram
+        send_to_telegram(f"Wapiti Scan Report:\n{report[:4000]}", telegram_chat_id, telegram_token)  # Telegram limit is 4096 chars
 
-    # Extract and format important info
-    vulnerabilities = report.get("vulnerabilities", [])
-    message = f"Wapiti Scan Report for {target_url}\n\n"
-
-    for vuln in vulnerabilities:
-        message += f"- {vuln['name']}: {vuln['description']}\n"
-
-    # Send report summary
-    send_to_telegram(message[:4096])  # Telegram message limit
+    except Exception as e:
+        print(f"Error: {e}")
