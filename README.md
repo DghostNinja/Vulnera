@@ -27,7 +27,7 @@ You can run Vulnra on your local machine, in a CI/CD pipeline, or within a Docke
 1️⃣ Cloning the Repository
 
 # Clone the repository
-git clone https://github.com/your-username/Vulnra.git
+git clone https://github.com/DghostNinja/Vulnera.git
 cd Vulnra
 
 2️⃣ Install Dependencies (For Manual Execution)
