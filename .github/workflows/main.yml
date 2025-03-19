@@ -1,26 +1,35 @@
-name: Wapiti Scan and Report
+name: DAST Security Scan
+
 on:
+  push:
+    branches:
+      - main
   schedule:
-    - cron: '0 */6 * * *'  # Run every 6 hours
-  workflow_dispatch:  # Allow manual triggers
+    - cron: "0 0 * * *"  # Runs every day at midnight
 
 jobs:
-  scan:
+  dast_scan:
     runs-on: ubuntu-latest
-    container:
-      image: wapiti/wapiti:latest  # Pre-built Wapiti Docker image
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
 
-      - name: Install Python dependencies
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Wapiti
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          sudo apt update
+          sudo apt install -y wapiti
+
+      - name: Install Dependencies
+        run: pip install requests
 
       - name: Run Wapiti Scan
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          python scan.py
+        run: python scan.py  # Ensure this matches your Python file name
