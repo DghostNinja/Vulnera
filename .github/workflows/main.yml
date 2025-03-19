@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: "0 0 * * *"  # Runs every day at midnight
+    - cron: "0 0 * * *"  # Runs daily at midnight
 
 jobs:
   dast_scan:
@@ -15,12 +15,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Cache Wapiti Installation
+      - name: Cache Wapiti
         id: cache-wapiti
         uses: actions/cache@v4
         with:
-          path: /usr/local/bin/wapiti
+          path: /usr/bin/wapiti  # Cache Wapiti binary
           key: wapiti-cache-v1
+          restore-keys: wapiti-cache-
 
       - name: Install Wapiti (if not cached)
         if: steps.cache-wapiti.outputs.cache-hit != 'true'
@@ -28,19 +29,10 @@ jobs:
           sudo apt update
           sudo apt install -y wapiti
 
-      - name: Run Wapiti Scan
-        run: wapiti -u http://testphp.vulnweb.com -f json -o report.json
-
-      - name: Upload Scan Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: wapiti-report
-          path: report.json
-
       - name: Install Python Dependencies
         run: pip install requests
 
-      - name: Send Report to Telegram
+      - name: Run Wapiti Scan and Send Report
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
