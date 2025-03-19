@@ -72,7 +72,7 @@ docker run --rm \
 
 ---
 ## 🛠️ CI/CD Integration with GitHub Actions
-Vulnra can be integrated into a **GitHub Actions workflow** to automate security testing on every push.
+Vulnera can be integrated into a **GitHub Actions workflow** to automate security testing on every push.
 
 ### **Add the following to `.github/workflows/main.yml`**
 ```yaml
@@ -119,7 +119,7 @@ jobs:
 
 ---
 ## 📬 Telegram Alerts
-Vulnra sends scan reports **directly to Telegram** for real-time monitoring.
+Vulnera sends scan reports **directly to Telegram** for real-time monitoring.
 
 🔹 **Create a Telegram Bot** using [BotFather](https://t.me/BotFather).  
 🔹 **Get your Chat ID** from [IDBot](https://t.me/myidbot).  
