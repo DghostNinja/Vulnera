@@ -71,7 +71,7 @@ docker run --rm \
 ## 🛠️ CI/CD Integration with GitHub Actions
 Vulnra can be integrated into a **GitHub Actions workflow** to automate security testing on every push.
 
-### **Add the following to `.github/workflows/dast_scan.yml`**
+### **Add the following to `.github/workflows/main.yml`**
 ```yaml
 name: DAST Security Scan
 
