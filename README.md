@@ -1,10 +1,10 @@
-# Vulnra - Automated DAST Scanner for CI/CD Pipelines
+# Vulnera - Automated DAST Scanner for CI/CD Pipelines
 
 ![Vulnra Banner](assets/vulnera.jpg)
 
 
 ## 🚀 Introduction
-**Vulnra** is a lightweight yet powerful **Dynamic Application Security Testing (DAST)** tool designed for **startups and DevSecOps teams**. It seamlessly integrates into **CI/CD pipelines**, allowing automated security scanning of web applications to detect vulnerabilities before deployment.
+**Vulnera** is a lightweight yet powerful **Dynamic Application Security Testing (DAST)** tool designed for **startups and DevSecOps teams**. It seamlessly integrates into **CI/CD pipelines**, allowing automated security scanning of web applications to detect vulnerabilities before deployment.
 
 🔍 **Key Features:**
 - **Automated web application security scanning** using [Wapiti](http://wapiti.sourceforge.net/)
@@ -15,7 +15,7 @@
 - **GitHub Actions support** for scheduled and on-push scans
 
 ## 📦 Installation & Setup
-You can run **Vulnra** on your local machine, in a CI/CD pipeline, or within a Docker container.
+You can run **Vulnera** on your local machine, in a CI/CD pipeline, or within a Docker container.
 
 ### **1️⃣ Cloning the Repository**
 ```sh
@@ -34,7 +34,7 @@ pip install -r requirements.txt
 sudo apt update && sudo apt install -y wapiti
 ```
 
-## 🚀 Running Vulnra
+## 🚀 Running Vulnera 
 ### **Single Target Scan (Manual Execution)**
 ```sh
 python scan.py
@@ -47,7 +47,7 @@ python scan.py targets.txt
 ```
 
 ---
-## 🐳 Running Vulnra with Docker
+## 🐳 Running Vulnera with Docker
 ### **1️⃣ Build the Docker Image**
 ```sh
 docker build -t vulnra .
