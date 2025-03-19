@@ -1,2 +1,2 @@
-https://requestmechanic.com
-http://testphp.vulnweb.com
+https://example1.com
+http://example2.com
