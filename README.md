@@ -1,5 +1,8 @@
 # Vulnra - Automated DAST Scanner for CI/CD Pipelines
 
+![Vulnra Banner](assets/vulnera.jpg)
+
+
 ## 🚀 Introduction
 **Vulnra** is a lightweight yet powerful **Dynamic Application Security Testing (DAST)** tool designed for **startups and DevSecOps teams**. It seamlessly integrates into **CI/CD pipelines**, allowing automated security scanning of web applications to detect vulnerabilities before deployment.
 
