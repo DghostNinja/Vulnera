@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: "0 0 * * *"  # Runs daily at midnight
+    - cron: " "  # set a cron e.g Runs daily at midnight
 
 jobs:
   dast_scan:
