@@ -1,45 +1,78 @@
-name: DAST Security Scan
+name: OWASP ZAP Intelligent Scan
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
   schedule:
-    - cron: " "  # set a cron e.g Runs daily at midnight
+    - cron: '0 0 * * *'  # Midnight scan
 
 jobs:
-  dast_scan:
+  zap_scan:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Cache Wapiti
-        id: cache-wapiti
+      - name: Cache Docker layers
         uses: actions/cache@v4
         with:
-          path: /usr/bin/wapiti  # Cache Wapiti binary
-          key: wapiti-cache-v1
-          restore-keys: wapiti-cache-
+          path: /tmp/.zap-cache
+          key: ${{ runner.os }}-zap-cache
 
-      - name: Install Wapiti (if not cached)
-        if: steps.cache-wapiti.outputs.cache-hit != 'true'
-        run: |
-          sudo apt update
-          sudo apt install -y wapiti
+      - name: Run ZAP Scan
+        id: zap
+        uses: zaproxy/action-full-scan@v0.6.0
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        with:
+          target: 'http://bountifix.com'
+          cmd_options: >
+            -j
+            -J report_json.json
+            -w report_md.md
+            -r report_html.html
+            -d
+            -z "-config zap.https.trustAllCertificates=true
+                -config spider.maxDuration=2
+                -config spider.maxDepth=3
+                -config spider.maxChildren=5
+                -config scanner.attackStrength=LOW
+                -config scanner.threadPerHost=1"
 
-      - name: Install Python Dependencies
-        run: pip install requests
+      - name: Run ZAP Baseline Scan
+        if: github.event_name != 'schedule' && github.event_name != 'workflow_dispatch'
+        uses: zaproxy/action-baseline@v0.6.0
+        with:
+          target: 'http://bountifix.com'
+          cmd_options: >
+            -j
+            -J report_json.json
+            -w report_md.md
+            -r report_html.html
+            -d
+            -z "-config zap.https.trustAllCertificates=true
+                -config passiveScan.maxAlertsPerRule=10
+                -config spider.maxDepth=2
+                -config spider.threadCount=2"
 
-      - name: Run Wapiti Scan and Send Report
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report
+          path: |
+            report_html.html
+            report_md.md
+            report_json.json
+
+      - name: Send Telegram Notification
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python scan.py
-
-      - name: Upload Report to GitHub Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: wapiti-reports
-          path: report.html/
+        run: |
+          STATUS="ZAP scan completed (${GITHUB_EVENT_NAME}) for commit ${{ github.sha }} in ${{ github.repository }}."
+          curl -s -X POST https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage \
+            -d chat_id=${TELEGRAM_CHAT_ID} \
+            -d text="$STATUS"
